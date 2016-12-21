@@ -21,7 +21,7 @@ class TestStream(unittest.TestCase):
         false_stream = Stream('')
         self.assertFalse(bool(false_stream))
 
-    def test_get_state_and__set_state(self):
+    def test_get_state_and_set_state(self):
         for string in self.strings:
             with self.subTest(i=string):
                 str_len = len(string)
@@ -44,6 +44,17 @@ class TestStream(unittest.TestCase):
                     self.assertGreaterEqual(i, string_size)
                     i += 1
 
+    def test_get_slice(self):
+        string = 'asdf dsafas wejkfjal'
+        stream = Stream(string)
+        self.assertEqual(stream.get_slice(0), string)
+        stream.skipnot()
+        stream.skip()
+        start = stream.get_state()
+        stream.skipnot()
+        stop = stream.get_state()
+        self.assertEqual(stream.get_slice(start, stop), string.split(' ')[1])
+
     def test_skip_on_empty_string(self):
         stream = Stream('')
         stream.skip()
@@ -61,7 +72,6 @@ class TestStream(unittest.TestCase):
         stream.skip('qwertyuiopasdfghjklzxcvbnm')
         self.assertEqual(stream.get_state(), 4)
 
-
     def test_skipnot_on_empty_string(self):
         stream = Stream('')
         stream.skipnot()
@@ -78,3 +88,16 @@ class TestStream(unittest.TestCase):
         stream = Stream(string)
         stream.skipnot()
         self.assertEqual(stream.get_state(), 4)
+
+    def test_get_size(self):
+        for string in self.strings:
+            with self.subTest(i=string):
+                stream = Stream(string)
+                for i in range(len(string), -1, -1):
+                    self.assertEqual(stream.get_size(), i)
+                    stream.get()
+
+    def test_get_full_size(self):
+        for string in self.strings:
+            with self.subTest(i=string):
+                self.assertEqual(Stream(string).get_full_size(), len(string))
