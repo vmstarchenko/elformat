@@ -41,7 +41,8 @@ class TestStream(unittest.TestCase):
                 while stream.get(False):
                     self.assertEqual(stream.get(), string[i])
                     # if move in infinity cycle
-                    self.assertGreaterEqual(i, string_size)
+                    print(i, string_size)
+                    self.assertLess(i, string_size)
                     i += 1
 
     def test_get_slice(self):

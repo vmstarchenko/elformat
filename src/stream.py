@@ -23,7 +23,7 @@ class Stream:
         If move is True increase stream position
 
         """
-        char = self._string[self._state] if self._size < self._state else None
+        char = self._string[self._state] if self._state < self._size else None
         if move is True:
             self._state += 1
         return char

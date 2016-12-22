@@ -9,7 +9,7 @@ class TestLispStream(unittest.TestCase):
     def test_read_string_on_empty_string(self):
         stream = LispStream('"" hello it is a test for empty string')
         string = stream.read_string()
-        self.assertEqual(string, (0, 2))
+        self.assertEqual(string, '""')
 
     def test_read_string_on_unclosed_string(self):
         stream = LispStream('" hello ')
@@ -30,10 +30,10 @@ class TestLispStream(unittest.TestCase):
     def test_read_string_on_string_with_escaped_symbols(self):
         stream = LispStream(r'"\\hello it \"is" a test for empty string')
         string = stream.read_string()
-        self.assertEqual(string, (0, 17))
+        self.assertEqual(string, r'"\\hello it \"is"')
         stream = LispStream(r'"\"" a')
         string = stream.read_string()
-        self.assertEqual(string, (0, 4))
+        self.assertEqual(string, r'"\""')
 
     def test_read_atom_on_empty_string(self):
         stream = LispStream('')
@@ -55,5 +55,5 @@ class TestLispStream(unittest.TestCase):
             with self.subTest(i=string):
                 stream = LispStream(string)
                 string = stream.read_atom()
-                self.assertEqual(string, (0, 3))
+                self.assertEqual(string, 'one')
                 self.assertEqual(stream.get_state(), 3)
