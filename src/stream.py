@@ -67,6 +67,14 @@ class Stream:
         """
         self._state = max(0, min(state, self._size))
 
+    def change_state(self, value):
+        """Move state position.
+
+        Add value to state.
+
+        """
+        self._state = max(0, min(value + self._state, self._size))
+
     def get_size(self):
         """Return amount of characters left in stream."""
         return self._size - self._state
