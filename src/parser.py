@@ -20,6 +20,8 @@ def parse(string):
             stream.get()
         elif char == ')':
             last = stack.pop()
+            if not stack:
+                raise LispSyntaxError('extra brace')
             stack[-1].append(List(last))
             stream.get()
         elif char == '"':
@@ -34,4 +36,6 @@ def parse(string):
                 raise LispSyntaxError(
                     "can't read atom at position %s" % stream.get_state())
             stack[-1].append(Atom(atom))
+    if len(stack) > 1:
+        raise LispSyntaxError('unclosed brace')
     return stack[0]
