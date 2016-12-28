@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 from .lispstream import LispStream
-from .nodes import Atom, List
+from .nodes import Atom, List, wrap_list
 
 
 class LispSyntaxError(ValueError):
@@ -22,7 +22,7 @@ def parse(string):
             last = stack.pop()
             if not stack:
                 raise LispSyntaxError('extra brace')
-            stack[-1].append(List(last))
+            stack[-1].append(wrap_list(last))
             stream.get()
         elif char == '"':
             string = stream.read_string()
