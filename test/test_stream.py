@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=C0111,C0103
+
 
 import unittest
 from src import Stream
@@ -41,7 +43,6 @@ class TestStream(unittest.TestCase):
                 while stream.get(False):
                     self.assertEqual(stream.get(), string[i])
                     # if move in infinity cycle
-                    print(i, string_size)
                     self.assertLess(i, string_size)
                     i += 1
 

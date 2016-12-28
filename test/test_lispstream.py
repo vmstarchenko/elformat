@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+# pylint: disable=C0111,C0103
+
 
 import unittest
 from src import LispStream
