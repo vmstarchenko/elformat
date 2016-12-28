@@ -43,3 +43,13 @@ class TestPprint(unittest.TestCase):
              '(asdf\n  (let* ((a b)\n         (c d))\n    (hello)\n    a\n    1\n    (+ 1 2)))'),
         )
         self._test_parsed(strings)
+
+    def test_function_align(self):
+        print('\n\n\n')
+        strings = (
+            ('(a (and x y z))',
+             '(a\n  (and x y z))'),
+            ('(a (and (or a b 2 (3 c)) (or c (and x y)) z))',
+             '(a\n  (and (or a\n           b\n           2\n           (3 c))\n       (or c\n           (and x y))\n       z))'),
+        )
+        self._test_parsed(strings)

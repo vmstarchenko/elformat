@@ -50,21 +50,21 @@ class Atom(AbstractBaseLispNode):
         return True
 
 
-class List(AbstractBaseLispNode):
+class BaseList(AbstractBaseLispNode):
     """Base list class."""
-    node_name = 'List'
+    node_name = 'BaseList'
 
     def __init__(self, inner_nodes):
         AbstractBaseLispNode.__init__(self)
         self._nodes = list(inner_nodes)
         self._func = None if len(inner_nodes) == 0 else inner_nodes[0]
 
-        nested = False
+        self.nested = False
         for _ in self._nodes:
             if not _.isflat():
-                nested = True
+                self.nested = True
                 break
-        if not nested:
+        if not self.nested:
             self.offset_generator = self.flat_offset_generator
             self.newline_generator = self.flat_newline_generator
         else:
@@ -81,7 +81,7 @@ class List(AbstractBaseLispNode):
         return self._nodes[k]
 
     def __eq__(self, other):
-        if isinstance(other, List):
+        if isinstance(other, BaseList):
             return self._nodes == other._nodes
         return self._nodes == list(other)
 
@@ -92,13 +92,41 @@ class List(AbstractBaseLispNode):
         return iter(self._nodes)
 
     def isflat(self):
-        return False
+        return not self._nodes
+
+    @abstractmethod
+    def nested_offset_generator(self):
+        pass
+
+    @abstractmethod
+    def nested_newline_generator(self):
+        pass
+
+    @abstractmethod
+    def flat_offset_generator(self):
+        pass
+
+    @abstractmethod
+    def flat_newline_generator(self):
+        pass
+
+
+# Specialized list classes
+class List(BaseList):
+
+    def __init__(self, inner_nodes):
+        BaseList.__init__(self, inner_nodes)
+        if not self.nested:
+            self.offset_generator = self.flat_offset_generator
+            self.newline_generator = self.flat_newline_generator
+        else:
+            self.offset_generator = self.nested_offset_generator
+            self.newline_generator = self.nested_newline_generator
 
     def pprint(self, options=DEFAULT_OPTIONS.copy()):
         result = []
         for offset, newline, node in zip(
                 self.offset_generator(), self.newline_generator(), self._nodes):
-            # set generators
             node.offset = self.offset + 2
             result.extend(('\n' * newline, ' ' * offset, node.pprint(options)))
         return '(%s)' % ''.join(result)
@@ -125,22 +153,21 @@ class List(AbstractBaseLispNode):
             yield 1
 
 
-# Specialized list classes
-
-
-class LetList(List):
+class LetList(List, BaseList):
     """Let object."""
 
     def __init__(self, inner_nodes):
-        List.__init__(self, inner_nodes)
+        BaseList.__init__(self, inner_nodes)
         self._nodes[1] = LetListSetField(self._nodes[1])
         self._func = None if len(inner_nodes) == 0 else inner_nodes[0]
+        self.offset_generator = self.flat_offset_generator
+        self.newline_generator = self.flat_newline_generator
 
     node_name = 'LetList'
 
     def pprint(self, options=DEFAULT_OPTIONS.copy()):
-        generator = zip(self.flat_offset_generator(),
-                        self.flat_newline_generator(), self._nodes)
+        generator = zip(self.offset_generator(),
+                        self.newline_generator(), self._nodes)
         result = []
 
         offset, newline, node = next(generator)
@@ -171,7 +198,8 @@ class LetList(List):
         yield 0
 
 
-class LetListSetField(List):
+class LetListSetField(List, BaseList):
+
     def flat_offset_generator(self):
         yield 0
         for _ in range(len(self._nodes) - 1):
@@ -187,11 +215,46 @@ class LetListSetField(List):
     nested_offset_generator = flat_offset_generator
     nested_newline_generator = flat_newline_generator
 
+
+class FunctionAlignList(List, BaseList):
+
+    def __init__(self, inner_nodes):
+        BaseList.__init__(self, inner_nodes)
+
+    def pprint(self, options=DEFAULT_OPTIONS.copy()):
+        new_offset = self.offset + 2 + len(self._func)
+        generator = zip(self.offset_generator(),
+                        self.newline_generator(), self._nodes)
+        result = []
+
+        for offset, newline, node in generator:
+            node.offset = new_offset
+            result.extend(('\n' * newline, ' ' * offset, node.pprint(options)))
+        return '(%s)' % ''.join(result)
+
+    def nested_offset_generator(self):
+        offset = self.offset + 2 + len(self._func)
+        yield 0
+        yield 1
+        for _ in range(len(self._nodes) - 2):
+            yield offset
+        yield 0
+
+    def nested_newline_generator(self):
+        yield 0
+        yield 0
+        for _ in range(len(self._nodes) - 2):
+            yield 1
+        yield 0
+
+
 NODES = {
     'let': LetList,
-    'let*': LetList
+    'let*': LetList,
+    'and': FunctionAlignList,
+    'or': FunctionAlignList,
 }
 
 
 def wrap_list(node):
-    return NODES.get(node[0], List)(node) if node else List(node)
+    return NODES.get(node[0], List)(node) if node else BaseList(node)
