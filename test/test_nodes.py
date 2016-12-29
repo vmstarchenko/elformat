@@ -4,17 +4,21 @@
 import unittest
 from src import parse
 
+
 class TestPprint(unittest.TestCase):
 
     def _test_parsed(self, strings):
         for string, answer in strings:
             with self.subTest(i=string):
                 parsed = parse(string)[0]
+                print('ans:\n', answer, sep='')
+                print('parsed:\n', parsed, sep='')
                 pprint = parsed.pprint()
+                print('pprint:\n', pprint, sep='')
                 self.assertEqual(
                     pprint,
                     answer,
-                    '\nResult:\n%s\nCorrectAnswer:\n%s\n' %(pprint, answer))
+                    '\nResult:\n%s\nCorrectAnswer:\n%s\n' % (pprint, answer))
 
     def test_simple_pprint_cases(self):
         strings = (
@@ -79,15 +83,72 @@ class TestPprint(unittest.TestCase):
 (a
   (and x y z))'''),
 
-            ('(a (and (or a b 2 (3 c)) (or c (and x y)) z))',
+            ('(a (and (or a b 2 (3 c)) (or (c d) (and x y)) z))',
              '''\
 (a
   (and (or a
            b
            2
            (3 c))
-       (or c
+       (or (c d)
            (and x y))
        z))'''),
+        )
+        self._test_parsed(strings)
+
+    def test_first_brace_align(self):
+        strings = (
+            ('((k x y z))',
+             '''\
+((k x y z))'''),
+
+            ('((k x y z) (a b))',
+             '''\
+((k x y z)
+ (a b))'''),
+
+        )
+        self._test_parsed(strings)
+
+    def test_if(self):
+        strings = (
+            ('(asdf (if (eq a z) a b))',
+             '''\
+(asdf
+  (if (eq a z)
+      a
+    b))'''),
+
+            ('(asdf (if (and (and a b) z) (asdf a (b c)) (asfd c d)))',
+             '''\
+(asdf
+  (if (and (and a b)
+           z)
+      (asdf
+        a
+        (b c))
+    (asfd c d)))'''),
+
+            ('(asdf (if (and (and a (a b)) (or a ab)) (asdf a (b c)) (asfd c (k k))))',
+             '''\
+(asdf
+  (if (and (and a
+                (a b))
+           (or a ab))
+      (asdf
+        a
+        (b c))
+    (asfd
+      c
+      (k k))))'''),
+            ('(asdf (if ((a b) (a k) (a z)) a b))',
+             '''\
+(asdf
+  (if ((a b)
+       (a k)
+       (a z))
+      a
+    b))'''),
+
         )
         self._test_parsed(strings)

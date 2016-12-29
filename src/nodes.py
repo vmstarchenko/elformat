@@ -102,7 +102,10 @@ class BaseList(AbstractBaseLispNode):
     nested_generator = dummy_nested_generator
 
 # Specialized list classes
+
+
 class List(BaseList):
+    node_name = 'List'
 
     def pprint(self, options=DEFAULT_OPTIONS.copy()):
         absolute_offset = self.get_absolute_offset()
@@ -121,10 +124,12 @@ class List(BaseList):
 
 
 class FirstBraceAlignList(List, BaseList):
+    node_name = 'FirstBraceAlignList'
     nested_generator = first_brace_align_generator
 
 
 class FunctionAlignList(List, BaseList):
+    node_name = 'FunctionAlignList'
 
     def get_absolute_offset(self):
         return self.offset + 2 + len(self._func)
@@ -132,6 +137,8 @@ class FunctionAlignList(List, BaseList):
     nested_generator = function_align_generator
 
 # Named Lists
+
+
 class LetList(List, BaseList):
     """Let object."""
 
@@ -143,19 +150,12 @@ class LetList(List, BaseList):
     node_name = 'LetList'
 
     def pprint(self, options=DEFAULT_OPTIONS.copy()):
-        generator = zip(self.generator(), self.children)
+        generator = zip(self.generator(), self.children,
+                        self.offset_generator())
         result = []
 
-        prefix, node = next(generator)
-        result.extend((prefix, node.pprint(options)))
-
-        prefix, node = next(generator)
-        node.offset = self.offset + len(self._func) + 3
-        result.extend((prefix, node.pprint(options)))
-
-        for prefix, node in generator:
-            # set generators
-            node.offset = self.offset + 2
+        for prefix, node, offset in generator:
+            node.offset = offset
             result.extend((prefix, node.pprint(options)))
         return '(%s)' % ''.join(result)
 
@@ -167,14 +167,60 @@ class LetList(List, BaseList):
             yield value
         yield ''
 
+    def offset_generator(self):
+        yield 0
+        yield self.offset + len(self._func) + 2
+        for _ in range(len(self.children) - 2):
+            yield self.offset + 2
+
+
+class IfList(List, BaseList):
+    """If object."""
+
+    def __init__(self, inner_nodes):
+        BaseList.__init__(self, inner_nodes)
+        self.generator = self.flat_generator
+
+    node_name = 'IfList'
+
+    def pprint(self, options=DEFAULT_OPTIONS.copy()):
+        generator = zip(self.generator(), self.children,
+                        self.offset_generator())
+        result = []
+
+        for prefix, node, offset in generator:
+            node.offset = offset
+            result.extend((prefix, node.pprint(options)))
+        return '(%s)' % ''.join(result)
+
+    def flat_generator(self):
+        yield ''
+        yield ' '
+        yield '\n' + ' ' * (self.offset + 4)
+        value = '\n' + ' ' * (self.offset + 2)
+        for _ in range(len(self.children) - 3):
+            yield value
+        yield ''
+
+    def offset_generator(self):
+        yield 0
+        yield self.offset + len(self._func) + 2
+        yield self.offset + len(self._func) + 2
+        for _ in range(len(self.children) - 3):
+            yield self.offset + 2
+
 
 NODES = {
     'let': LetList,
     'let*': LetList,
     'and': FunctionAlignList,
     'or': FunctionAlignList,
+    'eq': FunctionAlignList,
+    'if': IfList,
 }
 
 
 def wrap_list(node):
-    return NODES.get(node[0], List)(node) if node else BaseList(node)
+    return NODES.get(
+        node[0], List if node[0].isflat() else FirstBraceAlignList
+    )(node) if node else BaseList(node)

@@ -56,7 +56,7 @@ def first_brace_align_generator(node):
 
     """
     yield ''
-    value = '\n' + ' ' * node.offset
+    value = '\n' + ' ' * (node.offset + 1)
     for _ in range(len(node.children) - 1):
         yield value
     yield ''
