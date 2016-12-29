@@ -102,8 +102,6 @@ class BaseList(AbstractBaseLispNode):
     nested_generator = dummy_nested_generator
 
 # Specialized list classes
-
-
 class List(BaseList):
 
     def pprint(self, options=DEFAULT_OPTIONS.copy()):
@@ -134,8 +132,6 @@ class FunctionAlignList(List, BaseList):
     nested_generator = function_align_generator
 
 # Named Lists
-
-
 class LetList(List, BaseList):
     """Let object."""
 
