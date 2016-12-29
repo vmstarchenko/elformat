@@ -1,6 +1,11 @@
 #! /usr/bin/env python3
 
 from .tools import abstractmethod
+from .generators import (
+    dummy_nested_generator, dummy_flat_generator,
+    default_flat_generator, default_nested_generator,
+    first_brace_align_generator, function_align_generator
+)
 
 DEFAULT_OPTIONS = {
     'line_width': 80,
@@ -70,7 +75,8 @@ class BaseList(AbstractBaseLispNode):
             self.generator = self.nested_generator
 
     def __repr__(self):
-        return '%s(%s)' % (str(self.node_name), (', '.join(repr(_) for _ in self._nodes)))
+        return '%s(%s)' % (
+            str(self.node_name), (', '.join(repr(_) for _ in self._nodes)))
 
     def __len__(self):
         return len(self._nodes)
@@ -92,16 +98,12 @@ class BaseList(AbstractBaseLispNode):
     def isflat(self):
         return not self._nodes
 
-    @abstractmethod
-    def nested_generator(self):
-        pass
-
-    @abstractmethod
-    def flat_generator(self):
-        pass
-
+    flat_generator = dummy_flat_generator
+    nested_generator = dummy_nested_generator
 
 # Specialized list classes
+
+
 class List(BaseList):
 
     def pprint(self, options=DEFAULT_OPTIONS.copy()):
@@ -116,55 +118,30 @@ class List(BaseList):
     def get_absolute_offset(self):
         return self.offset + 2
 
-    def flat_generator(self):
-        yield ''
-        for _ in range(len(self._nodes) - 1):
-            yield ' '
-        yield ''
-
-    def nested_generator(self):
-        yield ''
-        for _ in range(len(self._nodes) - 1):
-            yield '\n' + ' ' * (self.offset + 2)
-        yield '\n'
+    flat_generator = default_flat_generator
+    nested_generator = default_nested_generator
 
 
 class FirstBraceAlignList(List, BaseList):
-
-    def flat_generator(self):
-        yield ''
-        for _ in range(len(self._nodes) - 1):
-            yield '\n' + ' ' * self.offset
-        yield ''
-
-    nested_generator = flat_generator
+    nested_generator = first_brace_align_generator
 
 
 class FunctionAlignList(List, BaseList):
 
-    def __init__(self, inner_nodes):
-        BaseList.__init__(self, inner_nodes)
-
     def get_absolute_offset(self):
         return self.offset + 2 + len(self._func)
 
-    def nested_generator(self):
-        offset = self.offset + 2 + len(self._func)
-        yield ''
-        yield ' '
-        for _ in range(len(self._nodes) - 2):
-            yield '\n' + ' ' * offset
-        yield ''
-
+    nested_generator = function_align_generator
 
 # Named Lists
+
+
 class LetList(List, BaseList):
     """Let object."""
 
     def __init__(self, inner_nodes):
         BaseList.__init__(self, inner_nodes)
         self._nodes[1] = FirstBraceAlignList(self._nodes[1])
-        self._func = None if len(inner_nodes) == 0 else inner_nodes[0]
         self.generator = self.flat_generator
 
     node_name = 'LetList'
@@ -189,8 +166,9 @@ class LetList(List, BaseList):
     def flat_generator(self):
         yield ''
         yield ' '
+        value = '\n' + ' ' * (self.offset + 2)
         for _ in range(len(self._nodes) - 2):
-            yield '\n' + ' ' * (self.offset + 2)
+            yield value
         yield ''
 
 
