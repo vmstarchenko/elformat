@@ -29,27 +29,27 @@ class Atom(AbstractBaseLispNode):
 
     def __init__(self, atom):
         AbstractBaseLispNode.__init__(self)
-        self._atom = atom
+        self.atom = atom
 
     def __repr__(self):
-        return 'Atom(%s)' % repr(self._atom)
+        return 'Atom(%s)' % repr(self.atom)
 
     def __str__(self):
-        return str(self._atom)
+        return str(self.atom)
 
     def __len__(self):
-        return len(self._atom)
+        return len(self.atom)
 
     def __hash__(self):
-        return hash(self._atom)
+        return hash(self.atom)
 
     def __eq__(self, other):
         if isinstance(other, Atom):
-            return self._atom == other._atom
-        return self._atom == other
+            return self.atom == other.atom
+        return self.atom == other
 
     def pprint(self, options=DEFAULT_OPTIONS.copy()):
-        return str(self._atom)
+        return str(self.atom)
 
     def isflat(self):
         return True
@@ -61,11 +61,11 @@ class BaseList(AbstractBaseLispNode):
 
     def __init__(self, inner_nodes):
         AbstractBaseLispNode.__init__(self)
-        self._nodes = list(inner_nodes)
+        self.children = list(inner_nodes)
         self._func = None if len(inner_nodes) == 0 else inner_nodes[0]
 
         self.nested = False
-        for _ in self._nodes:
+        for _ in self.children:
             if not _.isflat():
                 self.nested = True
                 break
@@ -76,27 +76,27 @@ class BaseList(AbstractBaseLispNode):
 
     def __repr__(self):
         return '%s(%s)' % (
-            str(self.node_name), (', '.join(repr(_) for _ in self._nodes)))
+            str(self.node_name), (', '.join(repr(_) for _ in self.children)))
 
     def __len__(self):
-        return len(self._nodes)
+        return len(self.children)
 
     def __getitem__(self, k):
-        return self._nodes[k]
+        return self.children[k]
 
     def __eq__(self, other):
         if isinstance(other, BaseList):
-            return self._nodes == other._nodes
-        return self._nodes == list(other)
+            return self.children == other.children
+        return self.children == list(other)
 
     def __hash__(self):
-        return hash(repr(self._nodes))
+        return hash(repr(self.children))
 
     def __iter__(self):
-        return iter(self._nodes)
+        return iter(self.children)
 
     def isflat(self):
-        return not self._nodes
+        return not self.children
 
     flat_generator = dummy_flat_generator
     nested_generator = dummy_nested_generator
@@ -108,7 +108,7 @@ class List(BaseList):
         absolute_offset = self.get_absolute_offset()
         result = []
         for prefix, node in zip(
-                self.generator(), self._nodes):
+                self.generator(), self.children):
             node.offset = absolute_offset
             result.extend((prefix, node.pprint(options)))
         return '(%s)' % ''.join(result)
@@ -137,13 +137,13 @@ class LetList(List, BaseList):
 
     def __init__(self, inner_nodes):
         BaseList.__init__(self, inner_nodes)
-        self._nodes[1] = FirstBraceAlignList(self._nodes[1])
+        self.children[1] = FirstBraceAlignList(self.children[1])
         self.generator = self.flat_generator
 
     node_name = 'LetList'
 
     def pprint(self, options=DEFAULT_OPTIONS.copy()):
-        generator = zip(self.generator(), self._nodes)
+        generator = zip(self.generator(), self.children)
         result = []
 
         prefix, node = next(generator)
@@ -163,7 +163,7 @@ class LetList(List, BaseList):
         yield ''
         yield ' '
         value = '\n' + ' ' * (self.offset + 2)
-        for _ in range(len(self._nodes) - 2):
+        for _ in range(len(self.children) - 2):
             yield value
         yield ''
 

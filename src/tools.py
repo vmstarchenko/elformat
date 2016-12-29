@@ -21,8 +21,15 @@ class CurryingError(BaseException):
 
 
 class curry:
+    """Create wrapped function that calles after binding correct amount of
+    arguments.
+
+    If bind more arguments raise CurryingError.
+
+    """
 
     def __init__(self, func, args_number=2):
+        """args_number: amount of expected arguments."""
         self.func = func
         self.args_number = args_number
         self.args = []
@@ -35,4 +42,4 @@ class curry:
             newfunc = curry(self.func, self.args_number)
             newfunc.args = self.args.copy() + list(args)
             return newfunc
-        raise CurryingError("bound extra arguments")
+        raise CurryingError('bound extra arguments')

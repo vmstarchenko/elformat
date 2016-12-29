@@ -23,7 +23,7 @@ def default_flat_generator(node):
 
     """
     yield ''
-    for _ in range(len(node._nodes) - 1):
+    for _ in range(len(node.children) - 1):
         yield ' '
     yield ''
 
@@ -40,7 +40,7 @@ def default_nested_generator(node):
     """
     yield ''
     value = '\n' + ' ' * (node.offset + 2)
-    for _ in range(len(node._nodes) - 1):
+    for _ in range(len(node.children) - 1):
         yield value
     yield '\n'
 
@@ -57,7 +57,7 @@ def first_brace_align_generator(node):
     """
     yield ''
     value = '\n' + ' ' * node.offset
-    for _ in range(len(node._nodes) - 1):
+    for _ in range(len(node.children) - 1):
         yield value
     yield ''
 
@@ -76,6 +76,6 @@ def function_align_generator(node):
     yield ''
     yield ' '
     value = '\n' + ' ' * offset
-    for _ in range(len(node._nodes) - 2):
+    for _ in range(len(node.children) - 2):
         yield value
     yield ''
