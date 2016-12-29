@@ -108,16 +108,17 @@ class List(BaseList):
     node_name = 'List'
 
     def pprint(self, options=DEFAULT_OPTIONS.copy()):
-        absolute_offset = self.get_absolute_offset()
+        generator = zip(
+            self.generator(), self.children, self.offset_generator())
         result = []
-        for prefix, node in zip(
-                self.generator(), self.children):
-            node.offset = absolute_offset
+        for prefix, node, offset in generator:
+            node.offset = offset
             result.extend((prefix, node.pprint(options)))
         return '(%s)' % ''.join(result)
 
-    def get_absolute_offset(self):
-        return self.offset + 2
+    def offset_generator(self):
+        for _ in range(len(self.children) + 1):
+            yield self.offset + 2
 
     flat_generator = default_flat_generator
     nested_generator = default_nested_generator
@@ -131,12 +132,13 @@ class FirstBraceAlignList(List, BaseList):
 class FunctionAlignList(List, BaseList):
     node_name = 'FunctionAlignList'
 
-    def get_absolute_offset(self):
-        return self.offset + 2 + len(self._func)
+    def offset_generator(self):
+        for _ in range(len(self.children) + 1):
+            yield self.offset + 2 + len(self._func)
 
     nested_generator = function_align_generator
 
-# Named Lists
+## Named Lists
 
 
 class LetList(List, BaseList):
@@ -148,16 +150,6 @@ class LetList(List, BaseList):
         self.generator = self.flat_generator
 
     node_name = 'LetList'
-
-    def pprint(self, options=DEFAULT_OPTIONS.copy()):
-        generator = zip(self.generator(), self.children,
-                        self.offset_generator())
-        result = []
-
-        for prefix, node, offset in generator:
-            node.offset = offset
-            result.extend((prefix, node.pprint(options)))
-        return '(%s)' % ''.join(result)
 
     def flat_generator(self):
         yield ''
@@ -182,16 +174,6 @@ class IfList(List, BaseList):
         self.generator = self.flat_generator
 
     node_name = 'IfList'
-
-    def pprint(self, options=DEFAULT_OPTIONS.copy()):
-        generator = zip(self.generator(), self.children,
-                        self.offset_generator())
-        result = []
-
-        for prefix, node, offset in generator:
-            node.offset = offset
-            result.extend((prefix, node.pprint(options)))
-        return '(%s)' % ''.join(result)
 
     def flat_generator(self):
         yield ''
