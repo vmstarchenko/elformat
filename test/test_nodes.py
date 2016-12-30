@@ -175,3 +175,29 @@ class TestPprint(unittest.TestCase):
   (message "hello"))'''),
         )
         self._test_parsed(strings)
+
+    def test_setf(self):
+        strings = (
+            ('(setf x y)',
+             '''\
+(setf x y)'''),
+
+            ('(setf x y xx yy xxx yyy)',
+             '''\
+(setf x y
+      xx yy
+      xxx yyy)'''),
+
+            ('(setf (a b) (c d) (aa bb) (cc dd) (aaa ccc) (ddd fff))',
+             '''\
+(setf (a b) (c d)
+      (aa bb) (cc dd)
+      (aaa ccc) (ddd fff))'''),
+
+            ('(setf a b c d e)',
+             '''\
+(setf a b
+      c d
+      e)'''),
+        )
+        self._test_parsed(strings)

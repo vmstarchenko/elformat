@@ -220,9 +220,38 @@ class DefunList(List, BaseList):
             yield offset
 
 
+class SetfList(List, BaseList):
+    """Setf object."""
+
+    def __init__(self, inner_nodes):
+        List.__init__(self, inner_nodes)
+        self.generator = self.flat_generator
+
+    node_name = 'SetfList'
+
+    def flat_generator(self):
+        value = '\n' + ' ' * (self.offset + 2 + len(self._func))
+        yield ''
+        yield ' '
+        yield ' '
+        for _ in range((len(self.children) - 3) // 2):
+            yield value
+            yield ' '
+        yield value
+
+    def offset_generator(self):
+        yield 0
+        offset = self.offset + len(self._func) + 2
+        for i in range((len(self.children) - 1) // 2):
+            yield offset
+            yield offset + len(self.children[1 + 2 * i]) + 1
+        yield offset
+
+
 NODES = {
     'and': FunctionAlignList,
     'defun': DefunList,
+    'setf': SetfList,
     'eq': FunctionAlignList,
     'if': IfList,
     'let': LetList,
