@@ -12,7 +12,6 @@ class TestPprint(unittest.TestCase):
             with self.subTest(i=string):
                 parsed = parse(string)[0]
                 print('ans:\n', answer, sep='')
-                print('parsed:\n', parsed, sep='')
                 pprint = parsed.pprint()
                 print('pprint:\n', pprint, sep='')
                 self.assertEqual(
@@ -200,4 +199,26 @@ class TestPprint(unittest.TestCase):
       c d
       e)'''),
         )
+        self._test_parsed(strings)
+
+    def test_dolist(self):
+        strings = (
+
+
+            ('(asdf\n  (dolist (a b) (c d)))',
+             '''\
+(asdf
+  (dolist (a b)
+    (c d)))'''),
+
+            ('(asdf\n  (dolist (a b) (hello) a 1 (+ 1 2 )))',
+             '''\
+(asdf
+  (dolist (a b)
+    (hello)
+    a
+    1
+    (+ 1 2)))'''),
+        )
+
         self._test_parsed(strings)

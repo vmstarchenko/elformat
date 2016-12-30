@@ -28,11 +28,11 @@ class curry:
 
     """
 
-    def __init__(self, func, args_number=2):
+    def __init__(self, func, args_number=2, args=[].copy()):
         """args_number: amount of expected arguments."""
         self.func = func
         self.args_number = args_number
-        self.args = []
+        self.args = list(args).copy()
 
     def __call__(self, *args, **kargs):
         args_number = len(self.args) + len(args)

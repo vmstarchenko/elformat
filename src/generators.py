@@ -2,6 +2,7 @@
 
 from .tools import abstractmethod
 
+
 @abstractmethod
 def dummy_nested_generator(node):
     """Dummy for abstract nodes."""
@@ -62,20 +63,43 @@ def first_brace_align_generator(node):
     yield ''
 
 
-def function_align_generator(node):
-    """Generator.
+def function_align_generator_f(n):
+    """Fabric of generators.
+
+    Create generators with arguments align by function. If n is None
+    align all arguments by function else align first n by function
+    and use default indentation for other.
 
     +------------------------------------------------------------------+
-    | (func arg1                                                       |
-    |       arg2                                                       |
-    |       arg3)                                                      |
+    | (func arg_1                                                      |
+    |       ...                                                        |
+    |       arg_n                                                      |
+    |   arg_n+1                                                        |
+    |   ...)                                                           |
     +------------------------------------------------------------------+
 
     """
-    offset = node.offset + 2 + len(node._func)
-    yield ''
-    yield ' '
-    value = '\n' + ' ' * offset
-    for _ in range(len(node.children) - 2):
-        yield value
-    yield ''
+    if n is None:
+        def newfunc(node):
+            offset = node.offset + 2 + len(node._func)
+            yield ''
+            yield ' '
+            value = '\n' + ' ' * offset
+            for _ in range(len(node.children) - 2):
+                yield value
+            yield ''
+        return newfunc
+    else:
+        def newfunc(node):
+            yield ''
+            yield ' '
+            value = '\n' + ' ' * (node.offset + 2 + len(node._func))
+            for _ in range(n - 1):
+                yield value
+            value = '\n' + ' ' * (node.offset + 2)
+            for _ in range(len(node.children) - n - 1):
+                yield value
+            yield ''
+    return newfunc
+
+function_align_generator = function_align_generator_f(None)
