@@ -149,9 +149,7 @@ class LetList(List):
     def __init__(self, inner_nodes):
         List.__init__(self, inner_nodes)
         self.children[1] = FirstBraceAlignList(self.children[1])
-        print('!!!')
         self.generator = self.flat_generator
-        print('!!!', self.generator)
 
     flat_generator = function_align_generator_f(1)
 
@@ -257,13 +255,16 @@ class DolistList(List):
 NODES = {
     'and': FunctionAlignList,
     'defun': DefunList,
-    'setf': SetfList,
+    'dolist': DolistList,
     'eq': FunctionAlignList,
+    'eql': FunctionAlignList,
+    'equal': FunctionAlignList,
     'if': IfList,
     'let': LetList,
-    'dolist': DolistList,
     'let*': LetList,
     'or': FunctionAlignList,
+    'setf': SetfList,
+    # 'lambda': DefunList,
 }
 
 

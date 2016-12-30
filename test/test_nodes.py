@@ -4,20 +4,22 @@
 import unittest
 from src import parse
 
-
 class TestPprint(unittest.TestCase):
 
-    def _test_parsed(self, strings):
+    def _test_parsed(self, strings, DEBUG=False):
         for string, answer in strings:
             with self.subTest(i=string):
                 parsed = parse(string)[0]
-                print('ans:\n', answer, sep='')
                 pprint = parsed.pprint()
-                print('pprint:\n', pprint, sep='')
                 self.assertEqual(
                     pprint,
                     answer,
                     '\nResult:\n%s\nCorrectAnswer:\n%s\n' % (pprint, answer))
+                if DEBUG or pprint != answer:
+                    print('\nTest', repr(string))
+                    print('ans:\n', answer, sep='')
+                    print('pprint:\n', pprint, sep='')
+                    print()
 
     def test_simple_pprint_cases(self):
         strings = (
@@ -221,4 +223,4 @@ class TestPprint(unittest.TestCase):
     (+ 1 2)))'''),
         )
 
-        self._test_parsed(strings)
+        self._test_parsed(strings, True)
