@@ -38,6 +38,10 @@ class TestPprint(unittest.TestCase):
 (a
   1
   (+ 1 2))'''),
+
+            ('(a () b c)',
+             '''\
+(a () b c)'''),
         )
         self._test_parsed(strings)
 
@@ -150,5 +154,24 @@ class TestPprint(unittest.TestCase):
       a
     b))'''),
 
+        )
+        self._test_parsed(strings)
+
+    def test_defun(self):
+        strings = (
+            ('(defun x())',
+             '''\
+(defun x ())'''),
+
+            ('(defun x (a b c) "Some docstring")',
+             '''\
+(defun x (a b c)
+  "Some docstring")'''),
+
+            ('(defun x (a b c) "Some docstring" (message "hello"))',
+             '''\
+(defun x (a b c)
+  "Some docstring"
+  (message "hello"))'''),
         )
         self._test_parsed(strings)

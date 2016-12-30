@@ -138,7 +138,7 @@ class FunctionAlignList(List, BaseList):
 
     nested_generator = function_align_generator
 
-## Named Lists
+# Named Lists
 
 
 class LetList(List, BaseList):
@@ -192,17 +192,46 @@ class IfList(List, BaseList):
             yield self.offset + 2
 
 
+class DefunList(List, BaseList):
+    """Defun object."""
+
+    def __init__(self, inner_nodes):
+        List.__init__(self, inner_nodes)
+        self.generator = self.flat_generator
+
+    node_name = 'DefunList'
+
+    def flat_generator(self):
+        value = '\n' + ' ' * (self.offset + 2)
+        yield ''
+        yield ' '
+        yield ' '
+        for _ in range(len(self.children) - 3):
+            yield value
+        yield ''
+
+    def offset_generator(self):
+        yield 0
+        offset = self.offset + len(self._func) + 2
+        yield offset
+        yield offset + len(self.children[1]) + 2
+        offset = self.offset + 2
+        for _ in range(len(self.children) - 3):
+            yield offset
+
+
 NODES = {
-    'let': LetList,
-    'let*': LetList,
     'and': FunctionAlignList,
-    'or': FunctionAlignList,
+    'defun': DefunList,
     'eq': FunctionAlignList,
     'if': IfList,
+    'let': LetList,
+    'let*': LetList,
+    'or': FunctionAlignList,
 }
 
 
 def wrap_list(node):
     return NODES.get(
         node[0], List if node[0].isflat() else FirstBraceAlignList
-    )(node) if node else BaseList(node)
+    )(node) if node else List(node)
