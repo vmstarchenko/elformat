@@ -1,5 +1,8 @@
 #! /usr/bin/env python3
 
+PYTHON_VERSION = 3 if hasattr(list, 'copy') else 2
+DEBUG = True
+
 
 class CallAbstractMethod(BaseException):
     """Call abstract method case."""
@@ -28,8 +31,10 @@ class curry:
 
     """
 
-    def __init__(self, func, args_number=2, args=[].copy()):
+    def __init__(self, func, args_number=2, args=None):
         """args_number: amount of expected arguments."""
+        if args is None:
+            args = []
         self.func = func
         self.args_number = args_number
         self.args = list(args).copy()

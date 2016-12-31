@@ -29,7 +29,7 @@ class Atom(AbstractBaseLispNode):
     """Base atom class."""
 
     def __init__(self, atom):
-        AbstractBaseLispNode.__init__(self)
+        super(Atom, self).__init__()
         self.atom = atom
 
     def __repr__(self):
@@ -60,10 +60,10 @@ class BaseList(AbstractBaseLispNode):
     """Base list class."""
     node_name = 'BaseList'
 
-    def __init__(self, inner_nodes):
-        AbstractBaseLispNode.__init__(self)
-        self.children = list(inner_nodes)
-        self._func = None if len(inner_nodes) == 0 else inner_nodes[0]
+    def __init__(self, children):
+        super(BaseList, self).__init__()
+        self.children = list(children)
+        self._func = None if len(children) == 0 else children[0]
 
         self.nested = False
         for _ in self.children:
@@ -146,8 +146,8 @@ class LetList(List):
     """Let object."""
     node_name = 'LetList'
 
-    def __init__(self, inner_nodes):
-        List.__init__(self, inner_nodes)
+    def __init__(self, children):
+        super(LetList, self).__init__(children)
         self.children[1] = FirstBraceAlignList(self.children[1])
         self.generator = self.flat_generator
 
@@ -163,8 +163,8 @@ class LetList(List):
 class IfList(List):
     """If object."""
 
-    def __init__(self, inner_nodes):
-        List.__init__(self, inner_nodes)
+    def __init__(self, children):
+        super(IfList, self).__init__(children)
         self.generator = self.flat_generator
 
     node_name = 'IfList'
@@ -182,8 +182,8 @@ class IfList(List):
 class DefunList(List):
     """Defun object."""
 
-    def __init__(self, inner_nodes):
-        List.__init__(self, inner_nodes)
+    def __init__(self, children):
+        super(DefunList, self).__init__(children)
         self.generator = self.flat_generator
 
     node_name = 'DefunList'
@@ -210,8 +210,8 @@ class DefunList(List):
 class SetfList(List):
     """Setf object."""
 
-    def __init__(self, inner_nodes):
-        List.__init__(self, inner_nodes)
+    def __init__(self, children):
+        super(SetfList, self).__init__(children)
         self.generator = self.flat_generator
 
     node_name = 'SetfList'
@@ -239,8 +239,8 @@ class DolistList(List):
     """Dolist object."""
     node_name = 'DolistList'
 
-    def __init__(self, inner_nodes):
-        List.__init__(self, inner_nodes)
+    def __init__(self, children):
+        super(DolistList, self).__init__(children)
         self.generator = self.flat_generator
 
     flat_generator = function_align_generator_f(1)
