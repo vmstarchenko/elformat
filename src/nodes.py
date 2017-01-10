@@ -1,5 +1,13 @@
 #! /usr/bin/env python3
 
+# pylint: disable=C0103
+
+"""Wrappers for lisp source code nodes.
+
+Each node Responsible for it's appearance
+
+"""
+
 from .tools import abstractmethod
 from .generators import (
     dummy_nested_generator, dummy_flat_generator,
@@ -55,6 +63,7 @@ class Atom(AbstractBaseLispNode):
         return str(self.atom)
 
     def isflat(self):
+        """Atom always is flat."""
         return True
 
 
@@ -99,6 +108,11 @@ class BaseList(AbstractBaseLispNode):
         return iter(self.children)
 
     def isflat(self):
+        """Check if list is flat.
+
+        List is flat if it's nil.
+
+        """
         return not self.children
 
     flat_generator = dummy_flat_generator
@@ -108,6 +122,7 @@ class BaseList(AbstractBaseLispNode):
 
 
 class List(BaseList):
+    """Default class for usual list, base class for named lists."""
     node_name = 'List'
 
     def pprint(self, options=DEFAULT_OPTIONS.copy()):
@@ -152,11 +167,13 @@ def generate_node_class(node_name, flat_generator=None, nested_generator=None):
 
 
 class FirstBraceAlignList(List):
+    """Node wrapper for first brace aligned lists."""
     node_name = 'FirstBraceAlignList'
     nested_generator = first_brace_align_generator
 
 
 class FunctionAlignList(List):
+    """Node wrapper for function aligned lists."""
     node_name = 'FunctionAlignList'
     nested_generator = function_align_generator
 
@@ -185,6 +202,15 @@ class DefunList(List):
     node_name = 'DefunList'
 
     def flat_generator(self):
+        """Generator.
+
+        +---------------------------------------------------------------
+        ---+ | (defun (arguments))
+        | |   body)
+        | +-------------------------------------------------------------
+        -----+
+
+        """
         yield ('', 0)
         offset = self.offset + len(self._func) + 2
         yield (' ', offset)
@@ -206,6 +232,16 @@ class SetfList(List):
     node_name = 'SetfList'
 
     def flat_generator(self):
+        """Generator.
+
+        +---------------------------------------------------------------
+        ---+ | (setf key value
+        | |       key value)
+        | |       ...)
+        | +-------------------------------------------------------------
+        -----+
+
+        """
         offset = self.offset + len(self._func) + 2
         value = ('\n' + ' ' * (self.offset + 2 + len(self._func)),
                  offset)
@@ -242,6 +278,11 @@ NODES = {
 
 
 def wrap_list(node):
+    """Select node wrapper for current node.
+
+    Node type is list
+
+    """
     return NODES.get(
         node[0], List if node[0].isflat() else FirstBraceAlignList
     )(node) if node else List(node)

@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 from .lispstream import LispStream
-from .nodes import Atom, List, wrap_list
+from .nodes import Atom, wrap_list
 
 
 class LispSyntaxError(ValueError):

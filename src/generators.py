@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+# pylint: disable=C0103
 
 """Contains all base generators for nodes.
 

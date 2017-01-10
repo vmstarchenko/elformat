@@ -2,7 +2,7 @@
 # pylint: disable=C0111,C0103
 
 import unittest
-from src import abstractmethod, CallAbstractMethod, curry, CurryingError
+from src import abstractmethod, CallAbstractMethod
 
 
 class TestTools(unittest.TestCase):
@@ -31,14 +31,3 @@ class TestTools(unittest.TestCase):
 
         b = B()
         self.assertEqual(b.a(), True)
-
-    def test_currying(self):
-        def func(a, b, c):
-            return a + b + c
-        cfunc = curry(func, 3)
-
-        self.assertEqual(cfunc(1, 2, 3), 6)
-        self.assertEqual(cfunc(1, 2)(3), 6)
-        self.assertEqual(cfunc(1)(2, 3), 6)
-        self.assertEqual(cfunc(1)(2)(3), 6)
-        self.assertRaises(CurryingError, cfunc(1, 2), 3, 4)

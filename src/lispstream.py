@@ -1,5 +1,8 @@
 #! /usr/bin/env python3
 
+
+"""Stream specified for reading lisp syntax structures."""
+
 from .stream import Stream
 
 NOT_ATOM_CHARACTERS = frozenset((
