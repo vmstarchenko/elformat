@@ -10,6 +10,7 @@ class LispSyntaxError(ValueError):
 
 
 def parse(string):
+    """Try to parse string and return Node object."""
     stream = LispStream(string)
     stack = [[], ]
     while stream:

@@ -98,19 +98,19 @@ def function_align_generator_f(n):
 
     """
     if n is None:
-        def newfunc(node):
+        def function_align_generator_(node):
             """Align arguments by function name."""
-            offset = node.offset + 2 + len(node._func)
+            offset = node.offset + 2 + len(node.func)
             yield ('', 0)
             yield (' ', offset)
             value = ('\n' + ' ' * offset, offset)
             for _ in range(len(node.children) - 2):
                 yield value
             yield ('', offset)
-        return newfunc
     else:
-        def newfunc(node):
-            offset = node.offset + 2 + len(node._func)
+        def function_align_generator_(node):
+            """Align first %d arguments by function name."""
+            offset = node.offset + 2 + len(node.func)
             yield ('', 0)
             yield (' ', offset)
             value = ('\n' + ' ' * offset, offset)
@@ -121,9 +121,8 @@ def function_align_generator_f(n):
             for _ in range(len(node.children) - n - 1):
                 yield value
             yield ('', 0)
-        setattr(newfunc, '__doc__',
-                'Align first %d arguments by function name' % n)
-    return newfunc
+        function_align_generator_.__doc__ = function_align_generator_.__doc__ % n
+    return function_align_generator_
 
 function_align_generator = function_align_generator_f(None)
 function_align_generator_1 = function_align_generator_f(1)

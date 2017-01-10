@@ -223,4 +223,4 @@ class TestPprint(unittest.TestCase):
     (+ 1 2)))'''),
         )
 
-        self._test_parsed(strings, True)
+        self._test_parsed(strings)

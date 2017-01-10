@@ -23,23 +23,11 @@ DEFAULT_OPTIONS = {
 }
 
 
-class AbstractBaseLispNode:
-    """Base lisp node class."""
-
-    def __init__(self):
-        self.offset = 0
-
-    @abstractmethod
-    def pprint(self, options=DEFAULT_OPTIONS.copy()):
-        """Pretty form of lisp Node."""
-        pass
-
-
-class Atom(AbstractBaseLispNode):
+class Atom:
     """Base atom class."""
 
     def __init__(self, atom):
-        super(Atom, self).__init__()
+        self.offset = 0
         self.atom = atom
 
     def __repr__(self):
@@ -59,7 +47,8 @@ class Atom(AbstractBaseLispNode):
             return self.atom == other.atom
         return self.atom == other
 
-    def pprint(self, options=DEFAULT_OPTIONS.copy()):
+    def pprint(self):
+        """Pretty form of lisp Node."""
         return str(self.atom)
 
     def isflat(self):
@@ -67,14 +56,14 @@ class Atom(AbstractBaseLispNode):
         return True
 
 
-class BaseList(AbstractBaseLispNode):
+class BaseList:
     """Base list class."""
     node_name = 'BaseList'
 
     def __init__(self, children):
-        super(BaseList, self).__init__()
+        self.offset = 0
         self.children = list(children)
-        self._func = None if len(children) == 0 else children[0]
+        self.func = None if len(children) == 0 else children[0]
 
         self.nested = False
         for _ in self.children:
@@ -115,6 +104,11 @@ class BaseList(AbstractBaseLispNode):
         """
         return not self.children
 
+    @abstractmethod
+    def pprint(self):
+        """Pretty form of lisp Node."""
+        pass
+
     flat_generator = dummy_flat_generator
     nested_generator = dummy_nested_generator
 
@@ -125,12 +119,12 @@ class List(BaseList):
     """Default class for usual list, base class for named lists."""
     node_name = 'List'
 
-    def pprint(self, options=DEFAULT_OPTIONS.copy()):
+    def pprint(self):
         generator = zip(self.generator(), self.children)
         result = []
         for (prefix, offset), node in generator:
             node.offset = offset
-            result.extend((prefix, node.pprint(options)))
+            result.extend((prefix, node.pprint()))
         return '(%s)' % ''.join(result)
 
     flat_generator = default_flat_generator
@@ -204,15 +198,14 @@ class DefunList(List):
     def flat_generator(self):
         """Generator.
 
-        +---------------------------------------------------------------
-        ---+ | (defun (arguments))
-        | |   body)
-        | +-------------------------------------------------------------
-        -----+
+        +--------------------------------------------------------------+
+        | (defun (arguments)                                           |
+        |   body)                                                      |
+        +--------------------------------------------------------------+
 
         """
         yield ('', 0)
-        offset = self.offset + len(self._func) + 2
+        offset = self.offset + len(self.func) + 2
         yield (' ', offset)
         yield (' ', offset + len(self.children[1]) + 2)
         offset = self.offset + 2
@@ -234,16 +227,15 @@ class SetfList(List):
     def flat_generator(self):
         """Generator.
 
-        +---------------------------------------------------------------
-        ---+ | (setf key value
-        | |       key value)
-        | |       ...)
-        | +-------------------------------------------------------------
-        -----+
+        +--------------------------------------------------------------+
+        | (setf key value                                              |
+        |       key value)                                             |
+        |       ...)                                                   |
+        +--------------------------------------------------------------+
 
         """
-        offset = self.offset + len(self._func) + 2
-        value = ('\n' + ' ' * (self.offset + 2 + len(self._func)),
+        offset = self.offset + len(self.func) + 2
+        value = ('\n' + ' ' * (self.offset + 2 + len(self.func)),
                  offset)
         yield ('', 0)
         yield (' ', offset)
@@ -283,6 +275,8 @@ def wrap_list(node):
     Node type is list
 
     """
-    return NODES.get(
-        node[0], List if node[0].isflat() else FirstBraceAlignList
-    )(node) if node else List(node)
+    if node:
+        func = node[0]
+        default = List if func.isflat() else FirstBraceAlignList
+        return NODES.get(func, default)(node)
+    return List(node)
