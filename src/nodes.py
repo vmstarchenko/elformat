@@ -122,19 +122,8 @@ class List(BaseList):
     nested_generator = default_nested_generator
 
 
-class FirstBraceAlignList(List):
-    node_name = 'FirstBraceAlignList'
-    nested_generator = first_brace_align_generator
-
-
-class FunctionAlignList(List):
-    node_name = 'FunctionAlignList'
-
-    nested_generator = function_align_generator
-
-def generate_node_class(node_name, flat_generator, nested_generator=None):
-    """
-    Create node class using template:
+def generate_node_class(node_name, flat_generator=None, nested_generator=None):
+    """Create node class using template:
 
     class NewClass(List):
         __doc__ = "{node_name} object."
@@ -145,18 +134,31 @@ def generate_node_class(node_name, flat_generator, nested_generator=None):
         nested_generator = nested_generator
         offset_generator = offset_generator
 
-    if nested_generator is None set flat_generator as nested_generator
+    if nested_generator is None use default_flat_generator
+    if nested_generator is None use flat_generator
+
     """
 
+    flat_generator = flat_generator or default_flat_generator
     nested_generator = nested_generator or flat_generator
     node_name = node_name.replace(' ', '_')
-    return type(node_name+'List',
+    return type(node_name + 'List',
                 (List,),
                 {
                     '__doc__': '%s object.' % str(node_name),
                     'flat_generator': flat_generator,
                     'nested_generator': nested_generator
                 })
+
+
+class FirstBraceAlignList(List):
+    node_name = 'FirstBraceAlignList'
+    nested_generator = first_brace_align_generator
+
+
+class FunctionAlignList(List):
+    node_name = 'FunctionAlignList'
+    nested_generator = function_align_generator
 
 # Named Lists
 

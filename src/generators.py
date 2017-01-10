@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 
-"""Contains all base generators for nodes
+"""Contains all base generators for nodes.
 
 Generator return pair (prefix, offset)
 prefix is a string that would be insert before node
@@ -14,6 +14,7 @@ is for place after last node.
 """
 
 from .tools import abstractmethod
+
 
 @abstractmethod
 def dummy_nested_generator(node):
@@ -97,7 +98,7 @@ def function_align_generator_f(n):
     """
     if n is None:
         def newfunc(node):
-            """Align arguments by function name"""
+            """Align arguments by function name."""
             offset = node.offset + 2 + len(node._func)
             yield ('', 0)
             yield (' ', offset)
@@ -119,7 +120,8 @@ def function_align_generator_f(n):
             for _ in range(len(node.children) - n - 1):
                 yield value
             yield ('', 0)
-        setattr(newfunc, '__doc__', 'Align first %d arguments by function name' %n)
+        setattr(newfunc, '__doc__',
+                'Align first %d arguments by function name' % n)
     return newfunc
 
 function_align_generator = function_align_generator_f(None)
