@@ -23,10 +23,12 @@ def default_flat_generator(node):
     +------------------------------------------------------------------+
 
     """
-    yield ''
+    offset = node.offset + 2
+    yield ('', offset)
+    value = (' ', offset)
     for _ in range(len(node.children) - 1):
-        yield ' '
-    yield ''
+        yield value
+    yield ('', offset)
 
 
 def default_nested_generator(node):
@@ -39,11 +41,12 @@ def default_nested_generator(node):
     +------------------------------------------------------------------+
 
     """
-    yield ''
-    value = '\n' + ' ' * (node.offset + 2)
+    offset = node.offset + 2
+    yield ('', offset)
+    value = ('\n' + ' ' * (node.offset + 2), offset)
     for _ in range(len(node.children) - 1):
         yield value
-    yield '\n'
+    yield ('\n', offset)
 
 
 def first_brace_align_generator(node):
@@ -56,11 +59,12 @@ def first_brace_align_generator(node):
     +------------------------------------------------------------------+
 
     """
-    yield ''
-    value = '\n' + ' ' * (node.offset + 1)
+    offset = node.offset + 2
+    yield ('', offset)
+    value = ('\n' + ' ' * (node.offset + 1), offset)
     for _ in range(len(node.children) - 1):
         yield value
-    yield ''
+    yield ('', offset)
 
 
 def function_align_generator_f(n):
@@ -82,24 +86,26 @@ def function_align_generator_f(n):
     if n is None:
         def newfunc(node):
             offset = node.offset + 2 + len(node._func)
-            yield ''
-            yield ' '
-            value = '\n' + ' ' * offset
+            yield ('', 0)
+            yield (' ', offset)
+            value = ('\n' + ' ' * offset, offset)
             for _ in range(len(node.children) - 2):
                 yield value
-            yield ''
+            yield ('', offset)
         return newfunc
     else:
         def newfunc(node):
-            yield ''
-            yield ' '
-            value = '\n' + ' ' * (node.offset + 2 + len(node._func))
+            offset = node.offset + 2 + len(node._func)
+            yield ('', 0)
+            yield (' ', offset)
+            value = ('\n' + ' ' * offset, offset)
             for _ in range(n - 1):
                 yield value
-            value = '\n' + ' ' * (node.offset + 2)
+            offset = node.offset + 2
+            value = ('\n' + ' ' * offset, offset)
             for _ in range(len(node.children) - n - 1):
                 yield value
-            yield ''
+            yield ('', 0)
     return newfunc
 
 function_align_generator = function_align_generator_f(None)
