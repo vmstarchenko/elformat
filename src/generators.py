@@ -1,7 +1,19 @@
 #! /usr/bin/env python3
 
-from .tools import abstractmethod
 
+"""Contains all base generators for nodes
+
+Generator return pair (prefix, offset)
+prefix is a string that would be insert before node
+offset is a int value that would be set as node offset
+
+for list with n nodes generator must return n+1 value because
+first value is for place before first node and last value
+is for place after last node.
+
+"""
+
+from .tools import abstractmethod
 
 @abstractmethod
 def dummy_nested_generator(node):
@@ -85,6 +97,7 @@ def function_align_generator_f(n):
     """
     if n is None:
         def newfunc(node):
+            """Align arguments by function name"""
             offset = node.offset + 2 + len(node._func)
             yield ('', 0)
             yield (' ', offset)
@@ -106,6 +119,11 @@ def function_align_generator_f(n):
             for _ in range(len(node.children) - n - 1):
                 yield value
             yield ('', 0)
+        setattr(newfunc, '__doc__', 'Align first %d arguments by function name' %n)
     return newfunc
 
 function_align_generator = function_align_generator_f(None)
+function_align_generator_1 = function_align_generator_f(1)
+function_align_generator_2 = function_align_generator_f(2)
+function_align_generator_3 = function_align_generator_f(3)
+function_align_generator_4 = function_align_generator_f(4)

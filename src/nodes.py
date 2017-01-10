@@ -4,8 +4,10 @@ from .tools import abstractmethod
 from .generators import (
     dummy_nested_generator, dummy_flat_generator,
     default_flat_generator, default_nested_generator,
-    first_brace_align_generator, function_align_generator,
-    function_align_generator_f
+    first_brace_align_generator,
+    function_align_generator,
+    function_align_generator_1,
+    function_align_generator_2,
 )
 
 DEFAULT_OPTIONS = {
@@ -130,7 +132,7 @@ class FunctionAlignList(List):
 
     nested_generator = function_align_generator
 
-def generate_node_class(node_name, flat_generator, nested_generator=None, offset_generator=None):
+def generate_node_class(node_name, flat_generator, nested_generator=None):
     """
     Create node class using template:
 
@@ -144,16 +146,17 @@ def generate_node_class(node_name, flat_generator, nested_generator=None, offset
         offset_generator = offset_generator
 
     if nested_generator is None set flat_generator as nested_generator
-    if offset_generator is None use default offset generator
     """
-    class NewClass(List):
-        __doc__ = '%s object.' % str(node_name)
 
-        flat_generator = flat_generator
-        nested_generator = nested_generator
-        offset_generator = offset_generator
-
-    return NewClass
+    nested_generator = nested_generator or flat_generator
+    node_name = node_name.replace(' ', '_')
+    return type(node_name+'List',
+                (List,),
+                {
+                    '__doc__': '%s object.' % str(node_name),
+                    'flat_generator': flat_generator,
+                    'nested_generator': nested_generator
+                })
 
 # Named Lists
 
@@ -167,32 +170,7 @@ class LetList(List):
         self.children[1] = FirstBraceAlignList(self.children[1])
         self.generator = self.flat_generator
 
-    flat_generator = function_align_generator_f(1)
-
-    # def offset_generator(self):
-    #     yield 0
-    #     yield self.offset + len(self._func) + 2
-    #     for _ in range(len(self.children) - 2):
-    #         yield self.offset + 2
-
-
-class IfList(List):
-    """If object."""
-
-    def __init__(self, children):
-        super(IfList, self).__init__(children)
-        self.generator = self.flat_generator
-
-    node_name = 'IfList'
-
-    flat_generator = function_align_generator_f(2)
-
-    # def offset_generator(self):
-    #     yield 0
-    #     yield self.offset + len(self._func) + 2
-    #     yield self.offset + len(self._func) + 2
-    #     for _ in range(len(self.children) - 3):
-    #         yield self.offset + 2
+    flat_generator = function_align_generator_1
 
 
 class DefunList(List):
@@ -237,17 +215,13 @@ class SetfList(List):
             yield (' ', offset + len(self.children[1 + 2 * i]) + 1)
         yield value
 
+DolistList = generate_node_class(
+    'Dolist',
+    function_align_generator_1)
 
-class DolistList(List):
-    """Dolist object."""
-    node_name = 'DolistList'
-
-    def __init__(self, children):
-        super(DolistList, self).__init__(children)
-        self.generator = self.flat_generator
-
-    flat_generator = function_align_generator_f(1)
-
+IfList = generate_node_class(
+    'If',
+    function_align_generator_2)
 
 NODES = {
     'and': FunctionAlignList,
