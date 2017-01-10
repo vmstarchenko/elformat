@@ -203,8 +203,8 @@ class DefunList(List):
         |   body)                                                      |
         +--------------------------------------------------------------+
 
-        ""
-        yield ('', 0)
+        """
+        yield (' ', 0)
         offset = self.offset + len(self.func) + 2
         yield (' ', offset)
         yield (' ', offset + len(self.children[1]) + 2)
