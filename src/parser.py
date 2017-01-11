@@ -3,7 +3,7 @@
 """Parser."""
 
 from .lispstream import LispStream, LispSyntaxError
-from .nodes import Atom, Comment, wrap_list
+from .nodes import Program, Atom, Comment, wrap_list
 
 
 class StackElement(list):
@@ -100,4 +100,4 @@ def parse(string):
     if len(stack) > 1:
         raise LispSyntaxError('unclosed brace')
 
-    return stack.top
+    return Program(stack.top)

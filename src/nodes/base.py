@@ -4,7 +4,8 @@
 """Base classes ans function for nodes."""
 
 
-__all__ = ('FunctionAlignList', 'List', 'FirstBraceAlignList', 'Atom',)
+__all__ = ('FunctionAlignList', 'List', 'FirstBraceAlignList',
+           'Atom', 'Comment', 'Program')
 
 from src.tools import abstractmethod
 from src.generators import (
@@ -225,3 +226,30 @@ class FunctionAlignList(List):
     """Node wrapper for function aligned lists."""
     node_name = 'FunctionAlignList'
     nested_generator = function_align_generator
+
+
+class Program(BaseList):
+    """Programm."""
+    node_name = 'Programm'
+
+    def pprint(self):
+        generator = zip(self.generator(), self.children,
+                        range(len(self.children) + 1))
+        result = []
+        for (prefix, offset), node, i in generator:
+            node.offset = offset
+            if i in self.comments:
+                for comment in self.comments[i]:
+                    comment.offset = offset
+                    result.append(comment.pprint())
+            result.extend((prefix, node.pprint()))
+        return ''.join(result)
+
+    def flat_generator(self):
+        yield ('', 0)
+        value = ('\n', 0)
+        for _ in range(len(self.children) - 1):
+            yield value
+        yield ('', 0)
+
+    nested_generator = flat_generator

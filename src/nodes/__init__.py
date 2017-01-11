@@ -7,7 +7,8 @@ Each node responsible for it's appearance
 """
 
 from .named_nodes import IfList, LetList, DefunList, DolistList, SetfList
-from .base import FunctionAlignList, List, FirstBraceAlignList, Atom, Comment
+from .base import (
+    FunctionAlignList, List, FirstBraceAlignList, Atom, Comment, Program)
 
 __all__ = ('wrap_list', 'Atom',)
 

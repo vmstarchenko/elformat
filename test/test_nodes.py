@@ -10,7 +10,7 @@ class TestPprint(unittest.TestCase):
     def _test_parsed(self, strings, DEBUG=False):
         for string, answer in strings:
             with self.subTest(i=string):
-                parsed = parse(string)[0]
+                parsed = parse(string)
                 pprint = parsed.pprint()
                 self.assertEqual(
                     pprint,
@@ -249,4 +249,16 @@ class TestPprint(unittest.TestCase):
 ;;;; Simple comment
   me)'''),)
 
+        self._test_parsed(strings)
+
+    def test_programm(self):
+        strings = (
+            ('(hello me)',
+             '''\
+(hello me)'''),
+
+            ('(hello me)(hello)',
+             '''\
+(hello me)
+(hello)'''), )
         self._test_parsed(strings)
