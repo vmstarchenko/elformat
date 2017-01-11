@@ -10,6 +10,11 @@ NOT_ATOM_CHARACTERS = frozenset((
     "'", ',', '`', '#', ',', '"'))
 
 
+class LispSyntaxError(ValueError):
+    """Error for not valid lisp programms."""
+    pass
+
+
 class LispStream(Stream):
     """Extends Stream class, add functions for reading Lisp functions."""
 
