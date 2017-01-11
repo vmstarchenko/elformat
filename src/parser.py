@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 
+"""Parser."""
+
 from .lispstream import LispStream
 from .nodes import Atom, wrap_list
 

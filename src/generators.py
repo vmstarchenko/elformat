@@ -16,6 +16,8 @@ is for place after last node.
 
 from .tools import abstractmethod
 
+# pylint: disable=unused-argument
+
 
 @abstractmethod
 def dummy_nested_generator(node):
@@ -27,6 +29,8 @@ def dummy_nested_generator(node):
 def dummy_flat_generator(node):
     """Dummy for abstract nodes."""
     pass
+
+# pylint: enable=unused-argument
 
 
 def default_flat_generator(node):

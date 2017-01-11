@@ -5,6 +5,10 @@
 PYTHON_VERSION = 3 if hasattr(list, 'copy') else 2
 DEBUG = True
 
+DEFAULT_OPTIONS = {
+    'line_width': 80,
+}
+
 
 class CallAbstractMethod(BaseException):
     """Call abstract method case."""

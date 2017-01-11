@@ -1,26 +1,17 @@
 #! /usr/bin/env python3
 
-# pylint: disable=C0103
 
-"""Wrappers for lisp source code nodes.
+"""Base classes ans function for nodes."""
 
-Each node Responsible for it's appearance
+__all__ = ('FunctionAlignList', 'List', 'FirstBraceAlignList', 'Atom',)
 
-"""
-
-from .tools import abstractmethod
-from .generators import (
+from src.tools import abstractmethod
+from src.generators import (
     dummy_nested_generator, dummy_flat_generator,
     default_flat_generator, default_nested_generator,
     first_brace_align_generator,
-    function_align_generator,
-    function_align_generator_1,
-    function_align_generator_2,
+    function_align_generator
 )
-
-DEFAULT_OPTIONS = {
-    'line_width': 80,
-}
 
 
 class Atom:
@@ -51,6 +42,7 @@ class Atom:
         """Pretty form of lisp Node."""
         return str(self.atom)
 
+    @property
     def isflat(self):
         """Atom always is flat."""
         return True
@@ -67,7 +59,7 @@ class BaseList:
 
         self.nested = False
         for _ in self.children:
-            if not _.isflat():
+            if not _.isflat:
                 self.nested = True
                 break
         if not self.nested:
@@ -96,6 +88,7 @@ class BaseList:
     def __iter__(self):
         return iter(self.children)
 
+    @property
     def isflat(self):
         """Check if list is flat.
 
@@ -170,113 +163,3 @@ class FunctionAlignList(List):
     """Node wrapper for function aligned lists."""
     node_name = 'FunctionAlignList'
     nested_generator = function_align_generator
-
-# Named Lists
-
-
-class LetList(List):
-    """Let object."""
-    node_name = 'LetList'
-
-    def __init__(self, children):
-        super(LetList, self).__init__(children)
-        self.children[1] = FirstBraceAlignList(self.children[1])
-        self.generator = self.flat_generator
-
-    flat_generator = function_align_generator_1
-
-
-class DefunList(List):
-    """Defun object."""
-
-    def __init__(self, children):
-        super(DefunList, self).__init__(children)
-        self.generator = self.flat_generator
-
-    node_name = 'DefunList'
-
-    def flat_generator(self):
-        """Generator.
-
-        +--------------------------------------------------------------+
-        | (defun (arguments)                                           |
-        |   body)                                                      |
-        +--------------------------------------------------------------+
-
-        """
-        yield (' ', 0)
-        offset = self.offset + len(self.func) + 2
-        yield (' ', offset)
-        yield (' ', offset + len(self.children[1]) + 2)
-        offset = self.offset + 2
-        value = ('\n' + ' ' * (self.offset + 2), offset)
-        for _ in range(len(self.children) - 3):
-            yield value
-        yield ('', 0)
-
-
-class SetfList(List):
-    """Setf object."""
-
-    def __init__(self, children):
-        super(SetfList, self).__init__(children)
-        self.generator = self.flat_generator
-
-    node_name = 'SetfList'
-
-    def flat_generator(self):
-        """Generator.
-
-        +--------------------------------------------------------------+
-        | (setf key value                                              |
-        |       key value)                                             |
-        |       ...)                                                   |
-        +--------------------------------------------------------------+
-
-        """
-        offset = self.offset + len(self.func) + 2
-        value = ('\n' + ' ' * (self.offset + 2 + len(self.func)),
-                 offset)
-        yield ('', 0)
-        yield (' ', offset)
-        yield (' ', offset + len(self.children[1]) + 1)
-        for i in range((len(self.children) - 3) // 2):
-            yield value
-            yield (' ', offset + len(self.children[1 + 2 * i]) + 1)
-        yield value
-
-DolistList = generate_node_class(
-    'Dolist',
-    function_align_generator_1)
-
-IfList = generate_node_class(
-    'If',
-    function_align_generator_2)
-
-NODES = {
-    'and': FunctionAlignList,
-    'defun': DefunList,
-    'dolist': DolistList,
-    'eq': FunctionAlignList,
-    'eql': FunctionAlignList,
-    'equal': FunctionAlignList,
-    'if': IfList,
-    'let': LetList,
-    'let*': LetList,
-    'or': FunctionAlignList,
-    'setf': SetfList,
-    # 'lambda': DefunList,
-}
-
-
-def wrap_list(node):
-    """Select node wrapper for current node.
-
-    Node type is list
-
-    """
-    if node:
-        func = node[0]
-        default = List if func.isflat() else FirstBraceAlignList
-        return NODES.get(func, default)(node)
-    return List(node)

@@ -10,4 +10,8 @@ or
 ```bash
 python3 -m unittest discover
 ```
-test2
+Test project style:
+```bash
+pylint src
+```
+
