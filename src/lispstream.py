@@ -7,7 +7,7 @@ from .stream import Stream
 
 NOT_ATOM_CHARACTERS = frozenset((
     '\r', '\n', '\x0b', '\x0c', ' ', '\t', '(', ')', '[', ']',
-    "'", ',', '`', '#', ',', '"'))
+    "'", ',', '`', '#', ',', '"', ';'))
 
 
 class LispSyntaxError(ValueError):

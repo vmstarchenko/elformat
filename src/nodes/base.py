@@ -172,7 +172,22 @@ class List(BaseList):
     def pprint(self):
         generator = zip(self.generator(), self.children,
                         range(len(self.children) + 1))
+
         result = []
+
+        # first node
+        # try:
+        #     (prefix, offset), node, i = next(generator)
+        #     node.offset = offset
+        #     if i in self.comments:
+        #         for comment in self.comments[i]:
+        #             comment.offset = offset
+        #             result.append(comment.pprint())
+        #     result.extend((prefix, node.pprint()))
+        # except StopIteration:
+            
+
+        # another nodes
         for (prefix, offset), node, i in generator:
             node.offset = offset
             if i in self.comments:
@@ -180,6 +195,9 @@ class List(BaseList):
                     comment.offset = offset
                     result.append(comment.pprint())
             result.extend((prefix, node.pprint()))
+
+        # end comment
+        
         return '(%s)' % ''.join(result)
 
     flat_generator = default_flat_generator
@@ -235,6 +253,17 @@ class Program(BaseList):
         generator = zip(self.generator(), self.children,
                         range(len(self.children) + 1))
         result = []
+
+        # first node
+        (prefix, offset), node, i = next(generator)
+        node.offset = offset
+        if i in self.comments:
+            for comment in self.comments[i]:
+                comment.offset = offset
+                result.append(comment.pprint())
+        result.extend((prefix, node.pprint()))
+
+        # another nodes
         for (prefix, offset), node, i in generator:
             node.offset = offset
             if i in self.comments:
@@ -242,6 +271,9 @@ class Program(BaseList):
                     comment.offset = offset
                     result.append(comment.pprint())
             result.extend((prefix, node.pprint()))
+
+        # end comments
+
         return ''.join(result)
 
     def flat_generator(self):

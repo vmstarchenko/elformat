@@ -38,7 +38,7 @@ class DefunList(List):
         +--------------------------------------------------------------+
 
         """
-        yield ('', 0)
+        yield ('', self.offset + 1)
         offset = self.offset + len(self.func) + 2
         yield (' ', offset)
         yield (' ', offset + len(self.children[1]) + 2)
@@ -71,7 +71,7 @@ class SetfList(List):
         offset = self.offset + len(self.func) + 2
         value = ('\n' + ' ' * (self.offset + 2 + len(self.func)),
                  offset)
-        yield ('', 0)
+        yield ('', self.offset + 1)
         yield (' ', offset)
         yield (' ', offset + len(self.children[1]) + 1)
         for i in range((len(self.children) - 3) // 2):

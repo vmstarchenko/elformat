@@ -108,6 +108,20 @@ class TestBaseNodesPprint(unittest.TestCase):
 
         self._test_parsed(strings)
 
+    @unittest.skip('TODO: write Programm class for more difficult tests')
+    def test_comment_position(self):
+        strings = (
+            ('(;;hello\nhello;;simple comment\n me;;third\n)',
+             '''\
+(;; hello
+ hello
+ ;; simple comment
+ me
+ ;; hello
+ )'''),
+            )
+        self._test_parsed(strings)
+
     def test_simple_programm(self):
         strings = (
             ('(hello me)',
@@ -117,16 +131,18 @@ class TestBaseNodesPprint(unittest.TestCase):
             ('(hello me)(hello)',
              '''\
 (hello me)
-(hello)'''), )
+(hello)'''),
+        )
+
         self._test_parsed(strings)
 
     @unittest.skip('TODO: write Programm class for more difficult tests')
-    def test_programm(self):
+    def test_program(self):
         strings = (
-            (';;;first message\n(let ((hello ;; for x\n a) ; smth\n b (c 1)) (body);; message\n (mess))',
+            (';;;first message\n(hello)(let ((hello ;; for x\n a) ; smth\n b (c 1)) (body);; message\n (mess))',
              '''\
 ;;; first message
-
+(hello)
 (let ((hello
        ;; for x
        a) ; smth
@@ -134,6 +150,7 @@ class TestBaseNodesPprint(unittest.TestCase):
       (c 1))
   (body)
   ;; message
-  (mess))'''),)
+  (mess))'''),
+        )
 
         self._test_parsed(strings, True)

@@ -52,7 +52,7 @@ class TestLispStream(unittest.TestCase):
     def test_read_atom_on_valid_atom(self):
         strings = [
             'one)', "one\'", 'one(', 'one,', 'one ', 'one`', 'one"', 'one[',
-            'one]', 'one#', 'one\t']
+            'one]', 'one#', 'one\t', 'one;', ]
         for string in strings:
             with self.subTest(i=string):
                 stream = LispStream(string)
@@ -63,7 +63,7 @@ class TestLispStream(unittest.TestCase):
     def test_read_comment(self):
         strings = [(
             ';; hello\nworld',
-            ';; hello'),]
+            ';; hello'), ]
         for string, ans in strings:
             with self.subTest(i=string):
                 stream = LispStream(string)
