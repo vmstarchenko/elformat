@@ -5,7 +5,7 @@ import unittest
 from src import parse
 
 
-class TestPprint(unittest.TestCase):
+class TestNamedNodesPprint(unittest.TestCase):
 
     def _test_parsed(self, strings, DEBUG=False):
         for string, answer in strings:
@@ -21,31 +21,6 @@ class TestPprint(unittest.TestCase):
                     print('ans:\n', answer, sep='')
                     print('pprint:\n', pprint, sep='')
                     print()
-
-    def test_simple_pprint_cases(self):
-        strings = (
-            (' ( asdf    a  1 )',
-             '''(asdf a 1)'''),
-
-            (' ( asdf    hello  "str" )',
-             '''(asdf hello "str")'''),
-
-            ('(asdf (str b))',
-             '''\
-(asdf
-  (str b))'''),
-
-            ('(a 1 (+ 1 2))',
-             '''\
-(a
-  1
-  (+ 1 2))'''),
-
-            ('(a () b c)',
-             '''\
-(a () b c)'''),
-        )
-        self._test_parsed(strings)
 
     def test_let(self):
         strings = (
@@ -80,40 +55,6 @@ class TestPprint(unittest.TestCase):
     (+ 1 2)))'''),
         )
 
-        self._test_parsed(strings)
-
-    def test_function_align(self):
-        strings = (
-            ('(a (and x y z))',
-             '''\
-(a
-  (and x y z))'''),
-
-            ('(a (and (or a b 2 (3 c)) (or (c d) (and x y)) z))',
-             '''\
-(a
-  (and (or a
-           b
-           2
-           (3 c))
-       (or (c d)
-           (and x y))
-       z))'''),
-        )
-        self._test_parsed(strings)
-
-    def test_first_brace_align(self):
-        strings = (
-            ('((k x y z))',
-             '''\
-((k x y z))'''),
-
-            ('((k x y z) (a b))',
-             '''\
-((k x y z)
- (a b))'''),
-
-        )
         self._test_parsed(strings)
 
     def test_if(self):
@@ -222,43 +163,4 @@ class TestPprint(unittest.TestCase):
     (+ 1 2)))'''),
         )
 
-        self._test_parsed(strings)
-
-    def test_comments_levels(self):
-        strings = (
-            ('(hello ; simple comment\n me)',
-             '''\
-(hello ; simple comment
-  me)'''),
-
-            ('(hello ;; simple comment\n me)',
-             '''\
-(hello
-  ;; simple comment
-  me)'''),
-
-            ('(hello ;;; simple comment\n me)',
-             '''\
-(hello
-;;; Simple comment
-  me)'''),
-
-            ('(hello ;;;; simple comment\n me)',
-             '''\
-(hello
-;;;; Simple comment
-  me)'''),)
-
-        self._test_parsed(strings)
-
-    def test_programm(self):
-        strings = (
-            ('(hello me)',
-             '''\
-(hello me)'''),
-
-            ('(hello me)(hello)',
-             '''\
-(hello me)
-(hello)'''), )
         self._test_parsed(strings)

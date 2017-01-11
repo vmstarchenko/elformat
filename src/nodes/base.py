@@ -116,7 +116,6 @@ class BaseList:
         if not self.nested:
             for comments in self.comments.values():
                 for _ in comments:
-                    print(repr(_))
                     if not _.isflat:
                         self.nested = True
                         break
