@@ -7,7 +7,7 @@ Each node responsible for it's appearance
 """
 
 from .named_nodes import IfList, LetList, DefunList, DolistList, SetfList
-from .base import FunctionAlignList, List, FirstBraceAlignList, Atom
+from .base import FunctionAlignList, List, FirstBraceAlignList, Atom, Comment
 
 __all__ = ('wrap_list', 'Atom',)
 
@@ -32,8 +32,9 @@ def wrap_list(node):
     Node type is list
 
     """
+    comments = node.comments
     if node:
         func = node[0]
         default = List if func.isflat else FirstBraceAlignList
-        return NODES.get(func, default)(node)
-    return List(node)
+        return NODES.get(func, default)(node, comments)
+    return List(node, comments)

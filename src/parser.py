@@ -3,7 +3,7 @@
 """Parser."""
 
 from .lispstream import LispStream, LispSyntaxError
-from .nodes import Atom, wrap_list
+from .nodes import Atom, Comment, wrap_list
 
 
 class StackElement(list):
@@ -28,10 +28,10 @@ class StackElement(list):
         """
         if atom and atom[0] == ';':
             length = self.__len__()
-            if self.comments[length]:
-                self.comments[length].append(atom)
+            if length in self.comments:
+                self.comments[length].append(Comment(atom))
             else:
-                self.comments[length] = [atom, ]
+                self.comments[length] = [Comment(atom), ]
         else:
             self.append(Atom(atom))
 
@@ -52,6 +52,15 @@ class Stack(list):
         """Create new stack element and push it to the top."""
         self.append(StackElement())
 
+    def pop(self):
+        if self.__len__() <= 1:
+            raise LispSyntaxError('extra brace')
+
+        wrapped = wrap_list(super(Stack, self).pop())
+        self[-1].append(wrapped)
+        return wrapped
+
+
 
 def parse(string):
     """Try to parse string and return Node object."""
@@ -65,17 +74,21 @@ def parse(string):
             stack.push_new()
             stream.get()
         elif char == ')':                           # finish current node
-            last = stack.pop()
-            if not stack:
-                raise LispSyntaxError('extra brace')
-            stack.top.append(wrap_list(last))
+            stack.pop()
             stream.get()
         elif char == '"':                           # create string atom
             string = stream.read_string()
             if string is None:
                 raise LispSyntaxError(
                     "can't read string at position %s" % stream.get_state())
-            stack.top.append(Atom(string))
+            stack.top.add(string)
+        elif char == ';':
+            comment = stream.read_comment()
+            print('comment', comment)
+            if comment is None:
+                raise LispSyntaxError(
+                    "can't read string at position %s" % stream.get_state())
+            stack.top.add(comment)
         else:                                       # create any another atom
             atom = stream.read_atom()
             if atom is None:

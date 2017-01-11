@@ -4,6 +4,7 @@
 import unittest
 from src import parse
 
+
 class TestPprint(unittest.TestCase):
 
     def _test_parsed(self, strings, DEBUG=False):
@@ -205,8 +206,6 @@ class TestPprint(unittest.TestCase):
 
     def test_dolist(self):
         strings = (
-
-
             ('(asdf\n  (dolist (a b) (c d)))',
              '''\
 (asdf
@@ -222,5 +221,32 @@ class TestPprint(unittest.TestCase):
     1
     (+ 1 2)))'''),
         )
+
+        self._test_parsed(strings)
+
+    def test_comments_levels(self):
+        strings = (
+            ('(hello ; simple comment\n me)',
+             '''\
+(hello ; simple comment
+  me)'''),
+
+            ('(hello ;; simple comment\n me)',
+             '''\
+(hello
+  ;; simple comment
+  me)'''),
+
+            ('(hello ;;; simple comment\n me)',
+             '''\
+(hello
+;;; Simple comment
+  me)'''),
+
+            ('(hello ;;;; simple comment\n me)',
+             '''\
+(hello
+;;;; Simple comment
+  me)'''),)
 
         self._test_parsed(strings)

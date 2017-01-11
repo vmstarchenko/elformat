@@ -71,3 +71,27 @@ class LispStream(Stream):
             return None
 
         return self._string[start_state:self._state]
+
+    def read_comment(self):
+        """Try to comment atom from stream.
+
+        Return comment if comment was read successfully and set stream
+        state to end comment position. If can't read comment (first
+        character is not valid) return None
+
+        """
+        if self._state >= self._size or \
+           self._string[self._state] != ';':  # check first char
+            return None
+
+        start_state = self._state
+
+        while (self._state < self._size and
+               self._string[self._state] != '\n'):
+            self._state += 1
+
+        if self._state > self._size:
+            self.set_state(start_state)
+            return None
+
+        return self._string[start_state:self._state]

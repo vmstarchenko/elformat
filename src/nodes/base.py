@@ -3,6 +3,7 @@
 
 """Base classes ans function for nodes."""
 
+
 __all__ = ('FunctionAlignList', 'List', 'FirstBraceAlignList', 'Atom',)
 
 from src.tools import abstractmethod
@@ -48,20 +49,76 @@ class Atom:
         return True
 
 
+class Comment:
+    """Base comment class."""
+
+    def __init__(self, comment):
+        self.offset = 0
+        self.comment_level = 0
+        for _ in comment:
+            if _ == ';':
+                self.comment_level += 1
+            else:
+                break
+        self.comment = comment[self.comment_level:].strip()
+
+    def __repr__(self):
+        return 'Comment(%s %s)' % (';' * self.comment_level, repr(self.comment),)
+
+    def __str__(self):
+        return '%s %s' % (';' * self.comment_level, str(self.comment),)
+
+    def __len__(self):
+        return len(self.comment) + 1 + self.comment_level
+
+    def __hash__(self):
+        return hash((self.comment, self.comment_level))
+
+    def __eq__(self, other):
+        if isinstance(other, Comment):
+            return self.comment == other.comment and \
+                self.comment_level == other.comment_level
+        return str(self.comment) == str(other)
+
+    def pprint(self):
+        """Pretty form of lisp Node."""
+        if self.comment_level == 1:
+            return ' ; %s' % (str(self.comment),)
+        elif self.comment_level == 2:
+            return '\n%s;; %s' % (
+                ' ' * self.offset, str(self.comment),)
+        else:
+            return '\n%s %s' % (
+                ';' * self.comment_level, str(self.comment).capitalize(),)
+
+    @property
+    def isflat(self):
+        """Comment always is nested."""
+        return False
+
+
 class BaseList:
     """Base list class."""
     node_name = 'BaseList'
 
-    def __init__(self, children):
+    def __init__(self, children, comments=None):
         self.offset = 0
         self.children = list(children)
         self.func = None if len(children) == 0 else children[0]
+        self.comments = comments or dict()
 
         self.nested = False
         for _ in self.children:
             if not _.isflat:
                 self.nested = True
                 break
+        if not self.nested:
+            for comments in self.comments.values():
+                for _ in comments:
+                    print(repr(_))
+                    if not _.isflat:
+                        self.nested = True
+                        break
         if not self.nested:
             self.generator = self.flat_generator
         else:
@@ -113,10 +170,15 @@ class List(BaseList):
     node_name = 'List'
 
     def pprint(self):
-        generator = zip(self.generator(), self.children)
+        generator = zip(self.generator(), self.children,
+                        range(len(self.children) + 1))
         result = []
-        for (prefix, offset), node in generator:
+        for (prefix, offset), node, i in generator:
             node.offset = offset
+            if i in self.comments:
+                for comment in self.comments[i]:
+                    comment.offset = offset
+                    result.append(comment.pprint())
             result.extend((prefix, node.pprint()))
         return '(%s)' % ''.join(result)
 

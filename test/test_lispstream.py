@@ -59,3 +59,13 @@ class TestLispStream(unittest.TestCase):
                 string = stream.read_atom()
                 self.assertEqual(string, 'one')
                 self.assertEqual(stream.get_state(), 3)
+
+    def test_read_comment(self):
+        strings = [(
+            ';; hello\nworld',
+            ';; hello'),]
+        for string, ans in strings:
+            with self.subTest(i=string):
+                stream = LispStream(string)
+                string = stream.read_comment()
+                self.assertEqual(string, ans)

@@ -12,8 +12,8 @@ class LetList(List):
     """Let object."""
     node_name = 'LetList'
 
-    def __init__(self, children):
-        super(LetList, self).__init__(children)
+    def __init__(self, children, *args, **kargs):
+        super(LetList, self).__init__(children, *args, **kargs)
         self.children[1] = FirstBraceAlignList(self.children[1])
         self.generator = self.flat_generator
 
@@ -23,8 +23,8 @@ class LetList(List):
 class DefunList(List):
     """Defun object."""
 
-    def __init__(self, children):
-        super(DefunList, self).__init__(children)
+    def __init__(self, children, *args, **kargs):
+        super(DefunList, self).__init__(children, *args, **kargs)
         self.generator = self.flat_generator
 
     node_name = 'DefunList'
@@ -52,8 +52,8 @@ class DefunList(List):
 class SetfList(List):
     """Setf object."""
 
-    def __init__(self, children):
-        super(SetfList, self).__init__(children)
+    def __init__(self, children, *args, **kargs):
+        super(SetfList, self).__init__(children, *args, **kargs)
         self.generator = self.flat_generator
 
     node_name = 'SetfList'
