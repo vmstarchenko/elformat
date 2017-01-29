@@ -20,9 +20,12 @@ class Stream:
     __nonzero__ = __bool__
 
     def get(self, move=True):
-        """Return character from stream or None if stream was finished.
+        """Get character from stream
 
-        If move is True increase stream position
+        :param move: if True move stream position forward
+        :type move: bool
+        :returns: character from stream or None if stream was finished.
+        :rtype: str, None
 
         """
         char = self._string[self._state] if self._state < self._size else None
