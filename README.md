@@ -15,3 +15,14 @@ Test project style:
 pylint src
 ```
 
+### Generate documentation
+Add new modules to autodocumentation sources:
+```bash
+sphinx-apidoc -o docs/source src
+```
+
+Generate html:
+```bash
+cd docs
+make html
+```
